@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "bwip-js": "^4.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "name": "node_rcc_api_code_generator",
+  "version": "1.0.0",
+  "main": "codes.js",
+  "author": "Minh-Quang NGUYEN",
+  "license": "ISC",
+  "description": "API générant les barrecode, QRCode, Datamatrix"
+}

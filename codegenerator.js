@@ -1,0 +1,87 @@
+const express   = require('express')
+const codegenerator     = express()
+const bwipjs    = require('bwip-js')
+
+// Définition du moteur d'affichage EJS
+codegenerator.set('view engine', 'ejs')
+codegenerator.set('views', 'HTML')
+
+
+// Codes prise en charge par bwip-js
+const CODE_TYPE = {
+    'CODE128'   : 'code128',
+    '128'       : 'code128',
+    'QRCODE'    : 'qrcode',
+    'QR'        : 'qrcode',
+    'DM'        : 'datamatrix',
+    'DMR'       : 'datamatrixrectangular'
+}
+
+
+// init variable par défaut
+let TEXT        = 'BIENVENUE'
+let TEXTinclude = 'false'
+let scaleSelect = 5
+
+
+//*********** GENERATION DE CODES ****************
+codegenerator.get('/', (req, res) => {
+
+    const parametres = req.query // Lecture des query
+    //console.log(req.query)
+    let monText = parametres.text
+    let CodeType = parametres.type
+
+    // Si pa de texte mettre un texte par défaut
+    if(parametres.text == undefined){
+        monText = TEXT
+        TEXTinclude = 'true'
+    }else{
+        monText = encodeURIComponent(parametres.text)    // encoder pour garder la chaine intacte
+    }
+
+    // Si pas de type de code, utiliser le code 128 par défaut
+    if(parametres.type == undefined){
+        CodeType = 'code128'
+        TEXTinclude = 'true'
+    }else{
+
+        const CodeTypeClef = Object.keys(CODE_TYPE).find((clef) => clef === parametres.type)
+        //console.log('la clé est : ' + CodeTypeClef)
+        if(!CodeTypeClef){ res.status(400).send('code non trouvé!') }
+        else{ CodeType = CODE_TYPE[CodeTypeClef] }
+        //CodeType = parametres.type
+        //console.log(CodeType)
+    }
+
+    const textSaisi = monText   // text retour pour affichage client
+
+    //console.log(CodeType)
+    //console.log(monText)
+    bwipjs.toBuffer({
+        //bcid:        'datamatrixrectangular',       // Barcode type : datamatrix, code128 ....
+        bcid        : CodeType,         // Barcode type : datamatrix, code128 ....
+        text        : monText,          // Text to encode
+        scale       : scaleSelect,      // 3x scaling factor
+        //height      : 10,               // Bar height, in millimeters
+        includetext : TEXTinclude,      // Show human-readable text
+        //textxalign:  'center',        // Always good to set this
+
+    }, function (err, png) {
+            if (err) {
+                // `err` may be a string or Error object
+                res.render('erreur', err)
+            } else {
+                // `png` is a Buffer
+                // png.length           : PNG file length
+                // png.readUInt32BE(16) : PNG image width
+                // png.readUInt32BE(20) : PNG image height
+                const myPng = 'data:image/png;base64,' + png.toString('base64')
+                res.render('code', {myPng,  textSaisi})
+            }
+        }
+    )
+
+})
+
+    module.exports = codegenerator
