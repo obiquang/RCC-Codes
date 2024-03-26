@@ -3,6 +3,10 @@
     "builds":[ { "src":"./server.js", "use"  :"@versel/node" } ],
     "routes":[ 
         {
+            "src":"/(.*)",
+            "dest" :"/"
+        },
+        {
             "src" : "/",
             "dest": "/codes"
         },
