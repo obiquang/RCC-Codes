@@ -1,18 +1,10 @@
 {
     "version":2,
     "builds":[ { "src":"./server.js", "use"  :"@versel/node" } ],
-    "routes":[ 
+    "rewrites":[ 
         {
-            "src":"/(.*)",
-            "dest" :"/"
-        },
-        {
-            "src" : "/",
-            "dest": "/codes"
-        },
-        {
-            "src" : "/codes",
-            "dest": "/codes"
+            "source":"/(.*)",
+            "destination" :"/"
         }
     ]
 }
