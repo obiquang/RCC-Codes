@@ -1,16 +1,7 @@
-const PORT = 3000
+const PORT      = process.env.PORT || 3000
 const bwipjs    = require('bwip-js')
-const express = require('express')
-const main = express()
-
-// ********** Ressource public statique ******************************
-//
-main.use(express.static("HTML"))
-
-
-// Définition du moteur d'affichage EJS
-main.set('view engine', 'ejs')
-main.set('views', 'HTML')
+const express   = require('express')
+const main      = express()
 
 
 // Codes prise en charge par bwip-js
@@ -25,7 +16,8 @@ const CODE_TYPE = {
 
 
 // init variable par défaut
-let TEXT        = 'BIENVENUE'
+let CodeType    = 'code128'
+let monText     = 'BIENVENUE'
 let TEXTinclude = 'false'
 let scaleSelect = 5
 
@@ -34,46 +26,41 @@ let scaleSelect = 5
 //*********** GENERATION DE CODES ****************
 main.get('/', (req, res) => {
 
-    const parametres = req.query // Lecture des query
-    //console.log(req.query)
-    let monText = parametres.text
-    let CodeType = parametres.type
+    // Lecture des querys
+    const parametres = req.query 
 
-    // Si pa de texte mettre un texte par défaut
-    if(parametres.text == undefined){
-        monText = TEXT
-        TEXTinclude = 'true'
-    }else{
-        monText = encodeURIComponent(parametres.text)    // encoder pour garder la chaine intacte
-    }
+    // Si pas de texte mettre un texte par défaut
+    if(parametres.text == undefined){ monText = 'BIENVENUE' }
+    else{ monText = encodeURIComponent(parametres.text) }   // encoder pour garder la chaine intacte 
 
     // Si pas de type de code, utiliser le code 128 par défaut
-    if(parametres.type == undefined){
-        CodeType = 'code128'
-        TEXTinclude = 'true'
-    }else{
-
+    if(parametres.type == undefined){ CodeType = 'code128' }
+    else{
+        // Chercher la clé
         const CodeTypeClef = Object.keys(CODE_TYPE).find((clef) => clef === parametres.type)
         //console.log('la clé est : ' + CodeTypeClef)
-        if(!CodeTypeClef){ res.status(400).send('code non trouvé!') }
+        if(!CodeTypeClef){ res.status(400).send('Type de code non trouvé!') }
         else{ CodeType = CODE_TYPE[CodeTypeClef] }
-        //CodeType = parametres.type
-        //console.log(CodeType)
     }
 
-    const textSaisi = monText   // text retour pour affichage client
+    // Si pas de textInclus, on met true par defaut
+    if(parametres.txtInc == undefined){ TEXTinclude = 'true' }
+    else{ TEXTinclude = parametres.txtInc }
 
-    //console.log(CodeType)
-    //console.log(monText)
+    // Si pas de scale, on definit par defaut à 1
+    if(parametres.echelle == undefined){ scaleSelect = 1 }
+    else{ scaleSelect = parametres.echelle }
+
+    //const textSaisi = monText   // text retour pour eventuellement affichage client
+
+    // GENERATION DE L'IMAGE
     bwipjs.toBuffer({
-        //bcid:        'datamatrixrectangular',       // Barcode type : datamatrix, code128 ....
         bcid        : CodeType,         // Barcode type : datamatrix, code128 ....
         text        : monText,          // Text to encode
         scale       : scaleSelect,      // 3x scaling factor
         //height      : 10,               // Bar height, in millimeters
         includetext : TEXTinclude,      // Show human-readable text
         //textxalign:  'center',        // Always good to set this
-
     }, function (err, png) {
             if (err) {
                 // `err` may be a string or Error object
@@ -84,9 +71,7 @@ main.get('/', (req, res) => {
                 // png.readUInt32BE(16) : PNG image width
                 // png.readUInt32BE(20) : PNG image height
                 const myPng = 'data:image/png;base64,' + png.toString('base64')
-                res.render('code', {myPng,  textSaisi})
-
-                //res.send(myPng)
+                res.send('<img src="' + myPng + '"/>')
             }
         }
     )
@@ -99,7 +84,6 @@ main.get('/', (req, res) => {
 // Page erreur à afficher si aucune route n'est trouvée
 // mettre à la fin sinon les autres main.xxx ne seront pas lu par le programme
 main.use( (req, res) => {
-
     res.status(404).send('Erreur 404')
 })
 

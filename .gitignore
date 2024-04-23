@@ -1,3 +1,4 @@
 node_modules
 versel.json_sos
 server.js_sos
+.env

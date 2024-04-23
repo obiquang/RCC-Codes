@@ -1,14 +1,14 @@
 {
   "dependencies": {
     "bwip-js": "^4.3.1",
-    "ejs": "^3.1.9",
+    "dotenv": "^16.4.5",
     "express": "^4.18.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "nodemon server.js"
   },
   "name": "node_rcc_api_code_generator",
   "version": "1.0.0",
@@ -17,6 +17,6 @@
   "license": "ISC",
   "description": "API générant les barrecode, QRCode, Datamatrix",
   "engines": {
-    "node":"20.x"
+    "node": "20.x"
   }
 }
