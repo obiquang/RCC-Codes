@@ -71,7 +71,9 @@ main.get('/', (req, res) => {
                 // png.readUInt32BE(16) : PNG image width
                 // png.readUInt32BE(20) : PNG image height
                 const myPng = 'data:image/png;base64,' + png.toString('base64')
-                res.send('<img src="' + myPng + '"/>')
+                if(parametres.base64 == true){ res.send(myPng) }
+                else{ res.send('<img src="' + myPng + '"/>') }
+                
             }
         }
     )
