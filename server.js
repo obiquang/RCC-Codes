@@ -64,14 +64,14 @@ main.get('/', (req, res) => {
     }, function (err, png) {
             if (err) {
                 // `err` may be a string or Error object
-                res.render('erreur', err)
+                res.status(400).send(err)
             } else {
                 // `png` is a Buffer
                 // png.length           : PNG file length
                 // png.readUInt32BE(16) : PNG image width
                 // png.readUInt32BE(20) : PNG image height
                 const myPng = 'data:image/png;base64,' + png.toString('base64')
-                if(parametres.base64 == true){ res.send(myPng) }
+                if(parametres.base64 === 'true'){ res.send(myPng) }
                 else{ res.send('<img src="' + myPng + '"/>') }
                 
             }
